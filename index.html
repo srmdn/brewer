@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Brewer — Open Coffee & Experiment Calculator</title>
+  <meta name="description" content="Kalkulator rasio seduh kopi open-source untuk beans spesialti, kopi instan, dan eksperimen racikan." />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23b3541e'/%3E%3Cpath d='M7 9h18l-4.5 9h-9L7 9z' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linejoin='round'/%3E%3Cpath d='M10 21h12' stroke='%23fff' stroke-width='2.2' stroke-linecap='round'/%3E%3Cpath d='M16 23.5c1.4 1.6 2.1 2.6 2.1 3.5a2.1 2.1 0 1 1-4.2 0c0-.9.7-1.9 2.1-3.5z' fill='%23fff'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://unpkg.com/htmx.org@2.0.4" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <a href="./" class="brand" aria-label="Brewer Home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 5h16l-4 8H8L4 5z" />
+            <path d="M20 7h1.5a1.5 1.5 0 0 1 0 3H18.5" />
+            <path d="M7 16h10" />
+            <path d="M12 18.5c1.2 1.3 1.8 2.1 1.8 2.9a1.8 1.8 0 1 1-3.6 0c0-.8.6-1.6 1.8-2.9z" fill="currentColor" stroke="none" />
+          </svg>
+        </span>
+        <div>
+          <h1 class="brand-title">Brewer</h1>
+          <p class="brand-sub">Open Coffee & Ratio Lab</p>
+        </div>
+      </a>
+
+      <div class="topbar-actions">
+        <button id="themeToggle" class="btn btn-ghost" type="button" aria-label="Ganti Tema">
+          <span id="themeLabel">Dark</span>
+        </button>
+        <button id="openModalBtn" class="btn btn-primary" type="button">
+          + Tambah Eksperimen
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container main-layout">
+    <!-- Shared Recipe Banner -->
+    <section id="sharedBanner" class="shared-banner hidden" aria-live="polite">
+      <div class="shared-banner-text">
+        <strong>Resep dari Tautan Dibagikan:</strong>
+        <span id="sharedRecipeName"></span>
+      </div>
+      <div class="shared-banner-actions">
+        <button id="saveSharedBtn" class="btn btn-primary btn-sm" type="button">Simpan ke Lokal</button>
+        <button id="dismissSharedBtn" class="btn btn-ghost btn-sm" type="button">Tutup</button>
+      </div>
+    </section>
+
+    <!-- Category Filter & Recipe Selector -->
+    <section class="panel selector-panel">
+      <div class="filter-bar" role="tablist" aria-label="Kategori Resep">
+        <button class="chip active" data-category="all" type="button">Semua</button>
+        <button class="chip" data-category="beans" type="button">Beans & Barista</button>
+        <button class="chip" data-category="instant" type="button">Quick & Instant</button>
+        <button class="chip" data-category="experimental" type="button">Experimental</button>
+        <button class="chip" data-category="local" type="button">Lokal Saya</button>
+      </div>
+
+      <div id="recipeGrid" class="recipe-grid"></div>
+    </section>
+
+    <!-- Active Calculator Workspace -->
+    <section class="workspace-grid">
+      <!-- Left: Ratio Calculator -->
+      <article class="panel calc-panel">
+        <div class="panel-header">
+          <div>
+            <div class="meta-row">
+              <span id="activeCategoryBadge" class="badge">INSTANT</span>
+              <span id="activeAuthor" class="meta-text">oleh @srmdn</span>
+              <span id="activeTemp" class="meta-text">80°C</span>
+            </div>
+            <h2 id="activeTitle" class="recipe-title">Memuat resep...</h2>
+            <p id="activeDesc" class="recipe-desc"></p>
+            <div class="recipe-provenance">
+              <p><strong id="recipeKind"></strong> · <span id="recipeVerification"></span></p>
+              <p id="recipeOrigin"></p>
+              <ul id="recipeReferences"></ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scaling Controls -->
+        <div class="scaler-box">
+          <div class="scaler-input-group">
+            <label for="coffeeDoseInput" class="input-label">
+              Takaran Kopi (gram)
+            </label>
+            <div class="dose-control">
+              <input
+                id="coffeeDoseInput"
+                type="number"
+                step="0.1"
+                min="0.5"
+                max="1000"
+                value="4.4"
+                inputmode="decimal"
+              />
+              <span class="unit-tag">g</span>
+            </div>
+          </div>
+
+          <div class="multiplier-group">
+            <span class="input-label">Skala Cepat</span>
+            <div class="multiplier-buttons">
+              <button type="button" class="btn btn-outline btn-sm mult-btn" data-mult="0.5">0.5x</button>
+              <button type="button" class="btn btn-outline btn-sm mult-btn active" data-mult="1">1x</button>
+              <button type="button" class="btn btn-outline btn-sm mult-btn" data-mult="1.5">1.5x</button>
+              <button type="button" class="btn btn-outline btn-sm mult-btn" data-mult="2">2x</button>
+              <button type="button" class="btn btn-outline btn-sm mult-btn" data-mult="3">3x</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ingredients Output Table -->
+        <div class="table-wrap">
+          <table class="ing-table">
+            <thead>
+              <tr>
+                <th>Bahan</th>
+                <th>Peran</th>
+                <th class="num-col">Takaran</th>
+              </tr>
+            </thead>
+            <tbody id="ingredientsBody"></tbody>
+            <tfoot>
+              <tr>
+                <td colspan="2"><strong>Total Berat Bahan Masuk</strong></td>
+                <td class="num-col"><strong id="totalYield">0 g</strong></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <!-- Balance Telemetry -->
+        <div class="telemetry-bar">
+          <div class="telemetry-item">
+            <span id="ratioLabel" class="telemetry-label">Rasio Kopi : Cairan &amp; Es</span>
+            <strong id="brewRatioDisplay" class="telemetry-val">1 : 0</strong>
+          </div>
+          <div class="telemetry-item">
+            <span class="telemetry-label">Proporsi Bahan Pemanis</span>
+            <strong id="sweetnessDisplay" class="telemetry-val">0%</strong>
+          </div>
+        </div>
+
+        <!-- Share & Export Actions -->
+        <div class="action-footer">
+          <button id="shareUrlBtn" class="btn btn-outline" type="button">
+            Salin Link Resep
+          </button>
+          <button id="submitGithubBtn" class="btn btn-ghost" type="button">
+            Submit ke Katalog GitHub →
+          </button>
+          <button id="deleteLocalBtn" class="btn btn-danger hidden" type="button">
+            Hapus Resep Lokal
+          </button>
+        </div>
+      </article>
+
+      <!-- Right: Steps & Kitchen Companion -->
+      <aside class="companion-col">
+        <!-- Kitchen Timer & Wake Lock -->
+        <section class="panel timer-panel">
+          <div class="timer-header">
+            <h3 class="section-heading">Brew Companion</h3>
+            <button id="wakeLockBtn" class="btn btn-outline btn-sm" type="button" aria-pressed="false">
+              Screen Wake: OFF
+            </button>
+          </div>
+
+          <div class="timer-display" id="timerDisplay">00:00</div>
+
+          <div class="timer-presets">
+            <button type="button" class="preset-chip" data-seconds="30">30s Bloom</button>
+            <button type="button" class="preset-chip" data-seconds="45">45s Larut</button>
+            <button type="button" class="preset-chip" data-seconds="150">2:30 V60</button>
+            <button type="button" class="preset-chip" data-seconds="0">Stopwatch</button>
+          </div>
+
+          <div class="timer-controls">
+            <button id="timerStartBtn" class="btn btn-primary" type="button">Mulai</button>
+            <button id="timerResetBtn" class="btn btn-outline" type="button">Reset</button>
+          </div>
+        </section>
+
+        <!-- Brew Steps Checklist -->
+        <section class="panel steps-panel">
+          <h3 class="section-heading">Langkah Seduh</h3>
+          <p class="meta-text">Angka dalam langkah mengikuti resep asli. Gunakan tabel untuk takaran yang sudah disesuaikan.</p>
+          <ol id="stepsList" class="steps-list"></ol>
+        </section>
+      </aside>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 5h16l-4 8H8L4 5z" />
+          <path d="M7 16h10" />
+          <path d="M12 18.5c1.2 1.3 1.8 2.1 1.8 2.9a1.8 1.8 0 1 1-3.6 0c0-.8.6-1.6 1.8-2.9z" fill="currentColor" stroke="none" />
+        </svg>
+        <span><strong>Brewer</strong> — Open-source coffee dataset & ratio engine.</span>
+      </div>
+      <a href="https://github.com/srmdn/brewer" target="_blank" rel="noopener noreferrer">
+        github.com/srmdn/brewer
+      </a>
+    </div>
+  </footer>
+
+  <!-- Experiment Builder Modal -->
+  <dialog id="experimentModal" class="modal">
+    <form id="experimentForm" class="modal-card" method="dialog">
+      <div class="modal-header">
+        <h3>Buat Resep Eksperimen Baru</h3>
+        <button id="closeModalBtn" class="btn btn-ghost btn-sm" type="button" aria-label="Tutup">×</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="expName">Nama Racikan *</label>
+            <input id="expName" type="text" required placeholder="Misal: Kopi Susu Kayu Manis" />
+          </div>
+          <div class="form-field">
+            <label for="expAuthor">Handle / Nama Pembuat</label>
+            <input id="expAuthor" type="text" placeholder="srmdn" />
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="expCategory">Kategori</label>
+            <select id="expCategory">
+              <option value="experimental">Experimental</option>
+              <option value="instant">Quick & Instant</option>
+              <option value="beans">Beans & Barista</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="expTemp">Suhu Air (°C)</label>
+            <input id="expTemp" type="number" value="85" min="0" max="100" />
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="expDesc">Catatan Profil Rasa</label>
+          <input id="expDesc" type="text" placeholder="Karakter pahit-manis ringan, segar diminum siang hari..." />
+        </div>
+
+        <div class="form-field">
+          <div class="field-row-header">
+            <label>Daftar Bahan & Gramasi *</label>
+            <button id="addIngredientRowBtn" class="btn btn-outline btn-sm" type="button">+ Bahan</button>
+          </div>
+          <div id="dynamicIngredients" class="dynamic-rows"></div>
+        </div>
+
+        <div class="form-field">
+          <label for="expSteps">Langkah Penyajian (1 baris = 1 langkah) *</label>
+          <textarea id="expSteps" rows="4" required placeholder="Larutkan kopi dengan air hangat.
+Tambahkan pemanis dan aduk rata.
+Tuang ke gelas berisi es batu."></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button id="cancelModalBtn" class="btn btn-ghost" type="button">Batal</button>
+        <button type="submit" class="btn btn-primary">Simpan & Buka di Kalkulator</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

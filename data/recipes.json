@@ -1,0 +1,298 @@
+[
+  {
+    "id": "kapal-api-bitter-sweet-bold",
+    "name": "Kapal Api Bitter-Sweet (Bold)",
+    "category": "instant",
+    "description": "Kopi instan dua sachet dengan gula aren bubuk dan es. Takaran awal untuk dicoba.",
+    "temp_c": 80,
+    "ingredients": [
+      {
+        "name": "Kopi Instan Murni (2 Sachet)",
+        "amount_g": 4.4,
+        "role": "coffee"
+      },
+      {
+        "name": "Air Panas (Seduh Kopi)",
+        "amount_g": 55,
+        "role": "liquid"
+      },
+      {
+        "name": "Gula Aren Bubuk",
+        "amount_g": 11,
+        "role": "sweetener"
+      },
+      {
+        "name": "Air Panas (Cairkan Gula)",
+        "amount_g": 15,
+        "role": "liquid"
+      },
+      {
+        "name": "Es Batu",
+        "amount_g": 75,
+        "role": "ice"
+      }
+    ],
+    "steps": [
+      "Larutkan 2 sachet kopi instan dengan 55g air panas (~80°C) hingga aroma keluar.",
+      "Cairkan 11g gula aren bubuk dengan 15g air panas di wadah terpisah, lalu saring ampas halusnya.",
+      "Campurkan larutan gula aren ke dalam kopi dan aduk rata.",
+      "Tuangkan ke dalam gelas berisi 75g es batu."
+    ],
+    "provenance": {
+      "kind": "experiment",
+      "creator": null,
+      "origin": "Diusulkan Gemini dalam diskusi dengan srmdn. Salah satu versi bitter-sweet pernah dicoba dan disukai, tetapi versi dan takaran persisnya belum tercatat.",
+      "verification": "not_recorded",
+      "references": []
+    }
+  },
+  {
+    "id": "kapal-api-bitter-sweet-light",
+    "name": "Kapal Api Bitter-Sweet (Light)",
+    "category": "instant",
+    "description": "Versi 1 sachet ringan dengan takaran gula aren tertahan agar karakter kopi tidak tenggelam.",
+    "temp_c": 80,
+    "ingredients": [
+      {
+        "name": "Kopi Instan Murni (1 Sachet)",
+        "amount_g": 2.2,
+        "role": "coffee"
+      },
+      {
+        "name": "Air Panas (Seduh Kopi)",
+        "amount_g": 55,
+        "role": "liquid"
+      },
+      {
+        "name": "Gula Aren Bubuk",
+        "amount_g": 7,
+        "role": "sweetener"
+      },
+      {
+        "name": "Air Panas (Cairkan Gula)",
+        "amount_g": 10,
+        "role": "liquid"
+      },
+      {
+        "name": "Es Batu",
+        "amount_g": 75,
+        "role": "ice"
+      }
+    ],
+    "steps": [
+      "Larutkan 1 sachet kopi dengan 55g air panas (~80°C).",
+      "Cairkan 7g gula aren dengan 10g air panas, saring bila perlu.",
+      "Satukan kopi dan larutan gula aren, lalu tuang di atas 75g es batu."
+    ],
+    "provenance": {
+      "kind": "experiment",
+      "creator": null,
+      "origin": "Diusulkan Gemini dalam diskusi dengan srmdn. Salah satu versi bitter-sweet pernah dicoba dan disukai, tetapi versi dan takaran persisnya belum tercatat.",
+      "verification": "not_recorded",
+      "references": []
+    }
+  },
+  {
+    "id": "sparkling-black-soda",
+    "name": "Sparkling Black Coffee Soda",
+    "category": "experimental",
+    "description": "Kombinasi kopi hitam instan dan soda lemon-lime bebas gula untuk sensasi segar ala Espresso Tonic.",
+    "temp_c": 80,
+    "ingredients": [
+      {
+        "name": "Kopi Instan Murni (1 Sachet)",
+        "amount_g": 2.2,
+        "role": "coffee"
+      },
+      {
+        "name": "Air Hangat",
+        "amount_g": 25,
+        "role": "liquid"
+      },
+      {
+        "name": "Es Batu",
+        "amount_g": 60,
+        "role": "ice"
+      },
+      {
+        "name": "Sprite Zero / Soda Lemon",
+        "amount_g": 120,
+        "role": "mixer"
+      }
+    ],
+    "steps": [
+      "Larutkan bubuk kopi dengan 25g air hangat agar tidak memicu busa berlebih saat bertemu soda.",
+      "Masukkan 60g es batu ke dalam gelas tinggi.",
+      "Tuang larutan kopi di atas es batu.",
+      "Tuang Sprite Zero dingin secara perlahan di bagian akhir."
+    ],
+    "provenance": {
+      "kind": "experiment",
+      "creator": null,
+      "origin": "Terinspirasi pengalaman srmdn mencampur kopi instan dan soda tanpa takaran; gramasi ini diusulkan Gemini.",
+      "verification": "not_recorded",
+      "references": []
+    }
+  },
+  {
+    "id": "v60-standard-1-15",
+    "name": "V60 Pour-Over (1:15)",
+    "category": "beans",
+    "description": "Contoh resep pour-over dengan perbandingan 15 g kopi dan 225 g air.",
+    "temp_c": 92,
+    "ingredients": [
+      {
+        "name": "Biji Kopi (Medium-Fine)",
+        "amount_g": 15,
+        "role": "coffee"
+      },
+      {
+        "name": "Air Blooming (3x Dosis)",
+        "amount_g": 45,
+        "role": "liquid"
+      },
+      {
+        "name": "Air Seduhan Lanjutan",
+        "amount_g": 180,
+        "role": "liquid"
+      }
+    ],
+    "steps": [
+      "Bilas kertas filter V60 dengan air panas dan buang air bilasannya.",
+      "Masukkan 15g kopi giling, tuang 45g air untuk blooming selama 30–40 detik.",
+      "Lanjutkan pouring bertahap hingga total air mencapai 225g di menit ke-2:15.",
+      "Tunggu hingga tetesan selesai di sekitar 2:30–2:45."
+    ],
+    "provenance": {
+      "kind": "template",
+      "creator": null,
+      "origin": "Racikan contoh yang disusun Gemini berdasarkan prinsip umum pour-over; sumber resep persis belum diketahui.",
+      "verification": "not_recorded",
+      "references": [
+        {
+          "title": "SCA — contoh rasio seduh",
+          "url": "https://sca.coffee/sca-news/25/issue-9/english/water-and-coffee-acidity-how-to-adapt-your-water-for-different-extraction-methods-25-magazine-issue-9-pxjby",
+          "relationship": "Pembanding konsep rasio, bukan sumber resep persis."
+        }
+      ]
+    }
+  },
+  {
+    "id": "v60-gula-aren-iced",
+    "name": "Japanese Iced V60 Gula Aren",
+    "category": "beans",
+    "description": "Contoh flash brew di atas es dengan tambahan gula aren cair.",
+    "temp_c": 93,
+    "ingredients": [
+      {
+        "name": "Biji Kopi (Fine-Medium)",
+        "amount_g": 20,
+        "role": "coffee"
+      },
+      {
+        "name": "Air Panas Pouring",
+        "amount_g": 180,
+        "role": "liquid"
+      },
+      {
+        "name": "Es Batu (di Server)",
+        "amount_g": 110,
+        "role": "ice"
+      },
+      {
+        "name": "Gula Aren Cair",
+        "amount_g": 16,
+        "role": "sweetener"
+      }
+    ],
+    "steps": [
+      "Taruh 110g es batu di dalam server V60 sebelum mulai menyeduh.",
+      "Giling kopi sedikit lebih halus dari V60 panas standar.",
+      "Lakukan blooming 50g air selama 35 detik, lanjutkan pouring hingga 180g.",
+      "Aduk server hingga es meleleh sebagian, lalu tambahkan 16g gula aren cair."
+    ],
+    "provenance": {
+      "kind": "experiment",
+      "creator": null,
+      "origin": "Racikan contoh Gemini yang menggabungkan teknik flash brew dan gula aren; sumber resep persis belum diketahui.",
+      "verification": "not_recorded",
+      "references": [
+        {
+          "title": "Counter Culture — Flash Brew",
+          "url": "https://counterculturecoffee.com/pages/flash-brew",
+          "relationship": "Pembanding teknik; takaran berbeda."
+        }
+      ]
+    }
+  },
+  {
+    "id": "cold-brew-1-15",
+    "name": "Daily Cold Brew (1:15)",
+    "category": "beans",
+    "description": "Contoh cold brew siap minum; sesuaikan waktu dan rasanya dengan preferensi.",
+    "temp_c": null,
+    "ingredients": [
+      {
+        "name": "Biji Kopi (Coarse)",
+        "amount_g": 20,
+        "role": "coffee"
+      },
+      {
+        "name": "Air Suhu Ruang / Dingin",
+        "amount_g": 300,
+        "role": "liquid"
+      }
+    ],
+    "steps": [
+      "Campurkan 20g kopi giling kasar dengan 300g air di dalam wadah tertutup.",
+      "Aduk perlahan hingga seluruh bubuk kopi terbasahi merata.",
+      "Simpan di kulkas selama 14–18 jam.",
+      "Saring menggunakan paper filter V60 agar hasil bersih tanpa ampas halus."
+    ],
+    "provenance": {
+      "kind": "template",
+      "creator": null,
+      "origin": "Racikan contoh Gemini; sumber resep persis belum diketahui.",
+      "verification": "not_recorded",
+      "references": [
+        {
+          "title": "Blue Bottle — rasio cold brew",
+          "url": "https://support.bluebottlecoffee.com/hc/en-us/articles/16854444408475-Can-I-brew-NOLA-in-the-Hario-Cold-Brew-Pitcher",
+          "relationship": "Pembanding rasio; bukan sumber resep persis."
+        }
+      ]
+    }
+  },
+  {
+    "id": "espresso-standard-1-2",
+    "name": "Modern Espresso (1:2)",
+    "category": "beans",
+    "description": "Contoh espresso dengan target hasil dua kali berat kopi kering.",
+    "temp_c": 93,
+    "ingredients": [
+      {
+        "name": "Biji Kopi (Fine Espresso)",
+        "amount_g": 18,
+        "role": "coffee"
+      }
+    ],
+    "steps": [
+      "Dosing 18g bubuk kopi ke portafilter, ratakan dengan WDT, dan tamp secara horizontal.",
+      "Ekstrak pada suhu 93°C hingga mencapai yield 36g dalam waktu 25–30 detik."
+    ],
+    "provenance": {
+      "kind": "template",
+      "creator": null,
+      "origin": "Racikan contoh Gemini; sumber resep persis belum diketahui.",
+      "verification": "not_recorded",
+      "references": [
+        {
+          "title": "Prima Coffee — dial-in espresso",
+          "url": "https://prima-coffee.com/blog/dialing-in-the-lagom-p64/",
+          "relationship": "Pembanding dosis dan target hasil; bukan sumber resep persis."
+        }
+      ]
+    },
+    "target_yield_g": 36
+  }
+]
