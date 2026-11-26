@@ -13,7 +13,7 @@ Angka dalam langkah seduh merupakan takaran resep asli dan tidak berubah saat sk
 
 ## Asal-usul resep
 
-Ketujuh resep awal adalah contoh dan eksperimen yang disusun Gemini, bukan koleksi resep barista yang sudah terverifikasi. Dua versi bitter-sweet dikembangkan dalam diskusi bersama srmdn; salah satu versi pernah dicoba, tetapi versi dan takaran persisnya belum dicatat. Resep kopi soda terinspirasi percobaan srmdn tanpa takaran yang dicatat. Referensi yang tercantum adalah pembanding teknik atau rasio, bukan klaim bahwa resep disalin atau diadaptasi dari sumber tersebut.
+Ketujuh resep awal adalah contoh dan eksperimen, bukan koleksi resep barista yang sudah terverifikasi. Dua versi bitter-sweet dan kopi soda berasal dari eksperimen Said; takaran persis tiap versi belum tercatat sebagai hasil pengujian. Referensi yang tercantum adalah pembanding teknik atau rasio, bukan klaim bahwa resep disalin atau diadaptasi dari sumber tersebut.
 
 Setiap resep katalog menyimpan `provenance`: `kind` (jenis resep), `creator` (pembuat, atau `null` jika belum diketahui), `origin` (penjelasan asal), `verification` (status uji resep persis), dan `references` (judul, URL, serta hubungan dengan resep). `target_yield_g` digunakan untuk target hasil espresso dan terpisah dari `ingredients` yang berisi bahan masuk. Resep lokal lama tanpa metadata tetap dapat dibuka, dengan status asal-usul belum dicatat.
 
@@ -27,7 +27,7 @@ Jalankan server HTTP dari direktori proyek:
 python3 -m http.server 8080
 ```
 
-Buka `http://localhost:8080/`. Tidak perlu proses build atau instalasi paket. Scaffold memuat HTMX dari CDN, meskipun fitur saat ini menggunakan JavaScript biasa.
+Buka `http://localhost:8080/`. Tidak perlu proses build atau instalasi paket. Halaman memuat CSS, JavaScript, dan katalog resep dari berkas lokal proyek.
 
 ## GitHub Pages
 

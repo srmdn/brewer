@@ -27,8 +27,8 @@ const FALLBACK_RECIPES = [
     category: "instant",
     description: "Kopi instan dua sachet dengan gula aren bubuk dan es. Takaran awal untuk dicoba.",
     provenance: {
-      kind: "experiment", creator: null, verification: "not_recorded", references: [],
-      origin: "Diusulkan Gemini dalam diskusi dengan srmdn. Salah satu versi bitter-sweet pernah dicoba dan disukai, tetapi versi dan takaran persisnya belum tercatat."
+      kind: "experiment", creator: "Said", verification: "not_recorded", references: [],
+      origin: "Eksperimen Said."
     },
     temp_c: 80,
     ingredients: [
@@ -144,6 +144,13 @@ async function loadAllRecipes() {
   renderRecipeGrid();
 }
 
+const CATEGORY_LABELS = { beans: "Manual Brew", instant: "Kopi Instan", experimental: "Eksperimen" };
+
+function setPressed(button, pressed) {
+  button.classList.toggle("active", pressed);
+  button.setAttribute("aria-pressed", String(pressed));
+}
+
 function renderRecipeGrid() {
   const grid = document.getElementById("recipeGrid");
   grid.innerHTML = "";
@@ -152,6 +159,11 @@ function renderRecipeGrid() {
     if (state.activeCategory === "all") return true;
     if (state.activeCategory === "local") return Boolean(r.isLocal);
     return r.category === state.activeCategory;
+  });
+
+  document.getElementById("recipeCount").textContent = `${filtered.length} resep`;
+  document.querySelectorAll(".chip").forEach((chip) => {
+    setPressed(chip, chip.dataset.category === state.activeCategory);
   });
 
   if (filtered.length === 0) {
@@ -163,14 +175,18 @@ function renderRecipeGrid() {
     const coffeeItem = recipe.ingredients.find((i) => i.role === "coffee") || recipe.ingredients[0];
     const card = document.createElement("button");
     card.type = "button";
-    card.className = "recipe-card" + (state.activeRecipe?.id === recipe.id ? " active" : "");
+    card.className = "recipe-card";
+    card.dataset.category = recipe.category;
+    setPressed(card, state.activeRecipe?.id === recipe.id);
     card.innerHTML = `
-      <div class="recipe-card-title">${escapeHtml(recipe.name)}</div>
-      <div class="recipe-card-meta">${recipe.category.toUpperCase()} • Base ${coffeeItem.amount_g}g</div>
+      <span class="recipe-card-title">${escapeHtml(recipe.name)}</span>
+      <span class="recipe-card-meta">${escapeHtml(CATEGORY_LABELS[recipe.category] || recipe.category)} <span aria-hidden="true">·</span> ${escapeHtml(coffeeItem.amount_g)} g kopi</span>
     `;
     card.addEventListener("click", () => {
       selectRecipe(recipe);
       renderRecipeGrid();
+      document.getElementById("activeTitle").focus({ preventScroll: true });
+      document.getElementById("kalkulator").scrollIntoView({ block: "start" });
     });
     grid.appendChild(card);
   });
@@ -182,9 +198,10 @@ function selectRecipe(recipe) {
   state.baseCoffeeGrams = Number(coffeeItem.amount_g) || 1;
   state.currentCoffeeGrams = state.baseCoffeeGrams;
 
+  const categoryLabel = CATEGORY_LABELS[recipe.category] || recipe.category;
   document.getElementById("activeCategoryBadge").textContent = recipe.isLocal
-    ? `${recipe.category} • lokal`
-    : recipe.category;
+    ? `${categoryLabel} • lokal`
+    : categoryLabel;
   document.getElementById("activeAuthor").textContent = recipe.provenance?.creator || recipe.author || "Pembuat belum dicatat";
   document.getElementById("activeTemp").textContent = recipe.temp_c != null ? `${recipe.temp_c}°C` : "Suhu tidak dicatat";
   document.getElementById("activeTitle").textContent = recipe.name;
@@ -195,7 +212,7 @@ function selectRecipe(recipe) {
   doseInput.value = state.currentCoffeeGrams;
 
   document.querySelectorAll(".mult-btn").forEach((btn) => {
-    btn.classList.toggle("active", Number(btn.dataset.mult) === 1);
+    setPressed(btn, Number(btn.dataset.mult) === 1);
   });
 
   const delBtn = document.getElementById("deleteLocalBtn");
@@ -285,8 +302,7 @@ function renderSteps() {
     const li = document.createElement("li");
     li.className = "step-item";
     li.innerHTML = `
-      <input type="checkbox" />
-      <span>${escapeHtml(step)}</span>
+      <label><input type="checkbox" /><span>${escapeHtml(step)}</span></label>
     `;
     const checkbox = li.querySelector("input");
     checkbox.addEventListener("change", () => {
@@ -350,6 +366,7 @@ function resetTimer() {
   clearInterval(state.timerInterval);
   state.timerRunning = false;
   state.timerMode = "stopwatch";
+  document.querySelectorAll(".preset-chip").forEach((p) => setPressed(p, p.dataset.seconds === "0"));
   state.timerSeconds = 0;
   document.getElementById("timerStartBtn").textContent = "Mulai";
   updateTimerDisplay();
@@ -362,21 +379,27 @@ async function toggleWakeLock() {
     return;
   }
 
-  if (state.wakeLock) {
-    await state.wakeLock.release();
-    state.wakeLock = null;
-    btn.textContent = "Screen Wake: OFF";
-    btn.setAttribute("aria-pressed", "false");
-    return;
-  }
-
+  btn.disabled = true;
   try {
-    state.wakeLock = await navigator.wakeLock.request("screen");
-    btn.textContent = "Screen Wake: ON";
+    if (state.wakeLock) {
+      await state.wakeLock.release();
+      return;
+    }
+
+    const lock = await navigator.wakeLock.request("screen");
+    state.wakeLock = lock;
     btn.setAttribute("aria-pressed", "true");
+    lock.addEventListener("release", () => {
+      if (state.wakeLock === lock) {
+        state.wakeLock = null;
+        btn.setAttribute("aria-pressed", "false");
+      }
+    }, { once: true });
     showToast("Layar dijaga tetap menyala");
   } catch {
-    showToast("Gagal mengaktifkan Wake Lock");
+    showToast("Pengaturan layar gagal diubah");
+  } finally {
+    btn.disabled = false;
   }
 }
 
@@ -385,9 +408,9 @@ function addIngredientFormRow(defaultName = "", defaultAmount = "", defaultRole 
   const row = document.createElement("div");
   row.className = "ing-row";
   row.innerHTML = `
-    <input type="text" class="ing-name" placeholder="Nama bahan" value="${escapeHtml(defaultName)}" required />
-    <input type="number" class="ing-amt" placeholder="Gram" step="0.1" min="0.1" value="${defaultAmount}" required />
-    <select class="ing-role">
+    <input type="text" class="ing-name" aria-label="Nama bahan" placeholder="Nama bahan" value="${escapeHtml(defaultName)}" required />
+    <input type="number" class="ing-amt" aria-label="Berat dalam gram" placeholder="Gram" step="0.1" min="0.1" value="${defaultAmount}" required />
+    <select class="ing-role" aria-label="Peran bahan">
       <option value="coffee" ${defaultRole === "coffee" ? "selected" : ""}>coffee</option>
       <option value="liquid" ${defaultRole === "liquid" ? "selected" : ""}>liquid</option>
       <option value="ice" ${defaultRole === "ice" ? "selected" : ""}>ice</option>
@@ -415,6 +438,12 @@ function initModal() {
 
   document.getElementById("closeModalBtn").addEventListener("click", () => modal.close());
   document.getElementById("cancelModalBtn").addEventListener("click", () => modal.close());
+  modal.addEventListener("click", (event) => {
+    if (event.target !== modal) return;
+    const rect = modal.getBoundingClientRect();
+    if (event.clientX < rect.left || event.clientX > rect.right ||
+        event.clientY < rect.top || event.clientY > rect.bottom) modal.close();
+  });
   document.getElementById("addIngredientRowBtn").addEventListener("click", () => addIngredientFormRow());
 
   document.getElementById("experimentForm").addEventListener("submit", (e) => {
@@ -462,7 +491,6 @@ function initModal() {
 
     state.recipes.unshift(newRecipe);
     state.activeCategory = "all";
-    document.querySelectorAll(".chip").forEach((c) => c.classList.toggle("active", c.dataset.category === "all"));
 
     selectRecipe(newRecipe);
     renderRecipeGrid();
@@ -501,14 +529,14 @@ function openGitHubSubmission() {
 function initTheme() {
   const saved = localStorage.getItem(THEME_KEY) || "light";
   document.documentElement.setAttribute("data-theme", saved);
-  document.getElementById("themeLabel").textContent = saved === "dark" ? "Light" : "Dark";
+  document.getElementById("themeLabel").textContent = saved === "dark" ? "Mode terang" : "Mode gelap";
 
   document.getElementById("themeToggle").addEventListener("click", () => {
     const current = document.documentElement.getAttribute("data-theme");
     const next = current === "dark" ? "light" : "dark";
     document.documentElement.setAttribute("data-theme", next);
     localStorage.setItem(THEME_KEY, next);
-    document.getElementById("themeLabel").textContent = next === "dark" ? "Light" : "Dark";
+    document.getElementById("themeLabel").textContent = next === "dark" ? "Mode terang" : "Mode gelap";
   });
 }
 
@@ -520,8 +548,6 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".chip").forEach((chip) => {
     chip.addEventListener("click", () => {
       state.activeCategory = chip.dataset.category;
-      document.querySelectorAll(".chip").forEach((c) => c.classList.remove("active"));
-      chip.classList.add("active");
       renderRecipeGrid();
     });
   });
@@ -530,7 +556,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const val = parseFloat(e.target.value);
     if (!isNaN(val) && val > 0) {
       state.currentCoffeeGrams = val;
-      document.querySelectorAll(".mult-btn").forEach((b) => b.classList.remove("active"));
+      document.querySelectorAll(".mult-btn").forEach((b) => setPressed(b, false));
       renderCalculation();
     }
   });
@@ -540,8 +566,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const mult = Number(btn.dataset.mult);
       state.currentCoffeeGrams = Number((state.baseCoffeeGrams * mult).toFixed(2));
       document.getElementById("coffeeDoseInput").value = state.currentCoffeeGrams;
-      document.querySelectorAll(".mult-btn").forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
+      document.querySelectorAll(".mult-btn").forEach((b) => setPressed(b, b === btn));
       renderCalculation();
     });
   });
@@ -593,7 +618,9 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("wakeLockBtn").addEventListener("click", toggleWakeLock);
 
   document.querySelectorAll(".preset-chip").forEach((preset) => {
+    setPressed(preset, preset.dataset.seconds === "0");
     preset.addEventListener("click", () => {
+      document.querySelectorAll(".preset-chip").forEach((p) => setPressed(p, p === preset));
       clearInterval(state.timerInterval);
       state.timerRunning = false;
       document.getElementById("timerStartBtn").textContent = "Mulai";

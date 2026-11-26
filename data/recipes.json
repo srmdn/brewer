@@ -40,8 +40,8 @@
     ],
     "provenance": {
       "kind": "experiment",
-      "creator": null,
-      "origin": "Diusulkan Gemini dalam diskusi dengan srmdn. Salah satu versi bitter-sweet pernah dicoba dan disukai, tetapi versi dan takaran persisnya belum tercatat.",
+      "creator": "Said",
+      "origin": "Eksperimen Said.",
       "verification": "not_recorded",
       "references": []
     }
@@ -86,8 +86,8 @@
     ],
     "provenance": {
       "kind": "experiment",
-      "creator": null,
-      "origin": "Diusulkan Gemini dalam diskusi dengan srmdn. Salah satu versi bitter-sweet pernah dicoba dan disukai, tetapi versi dan takaran persisnya belum tercatat.",
+      "creator": "Said",
+      "origin": "Eksperimen Said.",
       "verification": "not_recorded",
       "references": []
     }
@@ -128,8 +128,8 @@
     ],
     "provenance": {
       "kind": "experiment",
-      "creator": null,
-      "origin": "Terinspirasi pengalaman srmdn mencampur kopi instan dan soda tanpa takaran; gramasi ini diusulkan Gemini.",
+      "creator": "Said",
+      "origin": "Eksperimen Said.",
       "verification": "not_recorded",
       "references": []
     }
@@ -166,7 +166,7 @@
     "provenance": {
       "kind": "template",
       "creator": null,
-      "origin": "Racikan contoh yang disusun Gemini berdasarkan prinsip umum pour-over; sumber resep persis belum diketahui.",
+      "origin": "Resep contoh; sumber resep persis belum diketahui.",
       "verification": "not_recorded",
       "references": [
         {
@@ -214,7 +214,7 @@
     "provenance": {
       "kind": "experiment",
       "creator": null,
-      "origin": "Racikan contoh Gemini yang menggabungkan teknik flash brew dan gula aren; sumber resep persis belum diketahui.",
+      "origin": "Resep contoh; sumber resep persis belum diketahui.",
       "verification": "not_recorded",
       "references": [
         {
@@ -252,7 +252,7 @@
     "provenance": {
       "kind": "template",
       "creator": null,
-      "origin": "Racikan contoh Gemini; sumber resep persis belum diketahui.",
+      "origin": "Resep contoh; sumber resep persis belum diketahui.",
       "verification": "not_recorded",
       "references": [
         {
@@ -283,7 +283,7 @@
     "provenance": {
       "kind": "template",
       "creator": null,
-      "origin": "Racikan contoh Gemini; sumber resep persis belum diketahui.",
+      "origin": "Resep contoh; sumber resep persis belum diketahui.",
       "verification": "not_recorded",
       "references": [
         {
