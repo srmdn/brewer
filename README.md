@@ -9,7 +9,7 @@ Kalkulator rasio kopi dan katalog resep yang berjalan sebagai situs statis. Brew
 - Resep pribadi disimpan di browser melalui `localStorage`; data tidak disinkronkan antarperangkat dan dapat hilang ketika data browser dibersihkan.
 - Tautan berbagi membawa data resep. Tombol kontribusi menyiapkan GitHub Issue untuk dikurasi sebelum resep ditambahkan ke katalog.
 
-Angka dalam langkah seduh merupakan takaran resep asli dan tidak berubah saat skala diganti. Gunakan tabel bahan untuk takaran yang disesuaikan. Total bahan dan proporsi bahan pemanis adalah perhitungan berat bahan, bukan ukuran hasil minuman atau kadar gula aktual.
+Angka dalam langkah seduh merupakan takaran resep asli dan tidak berubah saat skala diganti. Ketika skala berubah, ringkasan bahan yang disesuaikan ditampilkan di dekat langkah. Waktu dan suhu tetap mengikuti resep asli. Takaran dibulatkan hingga tiga angka desimal untuk tampilan; total dihitung sebelum pembulatan. Total bahan dan proporsi bahan pemanis adalah perhitungan berat bahan, bukan ukuran hasil minuman atau kadar gula aktual.
 
 ## Asal-usul resep
 

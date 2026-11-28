@@ -271,3 +271,11 @@ button, a, input, select, textarea, summary { -webkit-tap-highlight-color: trans
 }
 @media (max-width:400px) { .back-catalog { font-size:.75rem; padding-inline:5px; } }
 .ing-table tfoot td:last-child { display:table-cell; }
+.dose-error { margin:0 0 12px; color:var(--rust); font-size:.85rem; font-weight:650; }
+.dose-control:has(input[aria-invalid="true"]) { border-color:var(--rust); }
+.rounding-note { margin:8px 0 16px; color:var(--muted); font-size:.78rem; }
+.steps-scaled { margin:12px 0; padding:12px 14px; border-left:3px solid var(--green); background:var(--tint); font-size:.85rem; }
+.steps-scaled ul { list-style:none; margin:6px 0 0; padding:0; }
+.steps-scaled li { display:flex; gap:12px; justify-content:space-between; padding:3px 0; }
+.steps-scaled li strong { white-space:nowrap; font-variant-numeric:tabular-nums; }
+.steps-scaled .steps-scaled-note { margin:8px 0 0; font-size:.8rem; color:var(--muted); }

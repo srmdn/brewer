@@ -7,7 +7,7 @@
     "temp_c": 80,
     "ingredients": [
       {
-        "name": "Kopi Instan Murni (2 Sachet)",
+        "name": "Kopi Instan Murni",
         "amount_g": 4.4,
         "role": "coffee"
       },
@@ -54,7 +54,7 @@
     "temp_c": 80,
     "ingredients": [
       {
-        "name": "Kopi Instan Murni (1 Sachet)",
+        "name": "Kopi Instan Murni",
         "amount_g": 2.2,
         "role": "coffee"
       },
@@ -100,7 +100,7 @@
     "temp_c": 80,
     "ingredients": [
       {
-        "name": "Kopi Instan Murni (1 Sachet)",
+        "name": "Kopi Instan Murni",
         "amount_g": 2.2,
         "role": "coffee"
       },

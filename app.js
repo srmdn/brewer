@@ -35,7 +35,7 @@ const FALLBACK_RECIPES = [
     },
     temp_c: 80,
     ingredients: [
-      { name: "Kopi Instan Murni (2 Sachet)", amount_g: 4.4, role: "coffee" },
+      { name: "Kopi Instan Murni", amount_g: 4.4, role: "coffee" },
       { name: "Air Panas (Seduh Kopi)", amount_g: 55, role: "liquid" },
       { name: "Gula Aren Bubuk", amount_g: 11, role: "sweetener" },
       { name: "Air Panas (Cairkan Gula)", amount_g: 15, role: "liquid" },
@@ -117,7 +117,7 @@ function saveLocalRecipes(list) {
 async function loadAllRecipes() {
   let builtIn = [];
   try {
-    const res = await fetch("./data/recipes.json");
+    const res = await fetch("./data/recipes.json", { cache: "no-cache" });
     if (!res.ok) throw new Error("Failed to load recipes.json");
     builtIn = await res.json();
   } catch {
@@ -227,6 +227,7 @@ function selectRecipe(recipe) {
 
   const doseInput = document.getElementById("coffeeDoseInput");
   doseInput.value = state.currentCoffeeGrams;
+  setDoseValidity(true);
 
   document.querySelectorAll(".mult-btn").forEach((btn) => {
     setPressed(btn, Number(btn.dataset.mult) === 1);
@@ -269,6 +270,7 @@ function renderCalculation() {
   if (!recipe) return;
 
   const scale = state.currentCoffeeGrams / state.baseCoffeeGrams;
+  renderScaledStepAmounts(recipe, scale);
   const tbody = document.getElementById("ingredientsBody");
   tbody.innerHTML = "";
 
@@ -312,6 +314,51 @@ function renderCalculation() {
   document.getElementById("sweetnessDisplay").textContent = sweetLabel;
 }
 
+function setDoseValidity(valid) {
+  const input = document.getElementById("coffeeDoseInput");
+  input.setAttribute("aria-invalid", String(!valid));
+  document.getElementById("doseError").classList.toggle("hidden", valid);
+  document.getElementById("calculationResults").classList.toggle("hidden", !valid);
+  if (!valid) {
+    document.getElementById("stepsScaledAmounts").classList.add("hidden");
+    document.getElementById("stepsScaleNotice").textContent = "Masukkan takaran kopi yang valid untuk melihat hasil skala. Langkah di bawah memakai resep asli.";
+  }
+}
+
+function renderScaledStepAmounts(recipe, scale) {
+  const list = document.getElementById("stepsScaledAmounts");
+  const notice = document.getElementById("stepsScaleNotice");
+  const changed = Math.abs(scale - 1) > 1e-9;
+  list.replaceChildren();
+  list.classList.toggle("hidden", !changed);
+  if (!changed) {
+    notice.textContent = "Angka dalam langkah mengikuti resep asli.";
+    return;
+  }
+  notice.textContent = "Langkah di bawah masih memakai angka resep asli. Gunakan takaran yang disesuaikan berikut; waktu dan suhu tetap mengikuti resep asli.";
+  const heading = document.createElement("strong");
+  heading.textContent = "Takaran yang disesuaikan";
+  const items = document.createElement("ul");
+  const amounts = [...recipe.ingredients];
+  if (recipe.target_yield_g != null) amounts.push({ name: "Target hasil espresso", amount_g: recipe.target_yield_g });
+  amounts.forEach((item) => {
+    const row = document.createElement("li");
+    const name = document.createElement("span");
+    const amount = document.createElement("strong");
+    name.textContent = item.name;
+    amount.textContent = `${formatGrams(item.amount_g * scale)} g`;
+    row.append(name, amount);
+    items.appendChild(row);
+  });
+  list.append(heading, items);
+  if (recipe.ingredients.some((item) => /\d/.test(item.name))) {
+    const note = document.createElement("p");
+    note.className = "steps-scaled-note";
+    note.textContent = "Nama bahan mengikuti resep asli; gunakan berat yang tertera untuk takaran baru.";
+    list.appendChild(note);
+  }
+}
+
 function renderSteps() {
   const list = document.getElementById("stepsList");
   list.innerHTML = "";
@@ -330,7 +377,8 @@ function renderSteps() {
 }
 
 function formatGrams(num) {
-  return Number.isInteger(num) ? num.toString() : num.toFixed(1).replace(/\.0$/, "");
+  if (num > 0 && num < 0.001) return "<0,001";
+  return new Intl.NumberFormat("id-ID", { maximumFractionDigits: 3 }).format(num);
 }
 
 function escapeHtml(str) {
@@ -624,10 +672,12 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   document.getElementById("coffeeDoseInput").addEventListener("input", (e) => {
-    const val = parseFloat(e.target.value);
-    if (!isNaN(val) && val > 0) {
+    const val = Number(e.target.value);
+    const valid = e.target.value !== "" && Number.isFinite(val) && val >= 0.01 && val <= 1000;
+    setDoseValidity(valid);
+    document.querySelectorAll(".mult-btn").forEach((b) => setPressed(b, false));
+    if (valid) {
       state.currentCoffeeGrams = val;
-      document.querySelectorAll(".mult-btn").forEach((b) => setPressed(b, false));
       renderCalculation();
     }
   });
@@ -635,8 +685,10 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".mult-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       const mult = Number(btn.dataset.mult);
-      state.currentCoffeeGrams = Number((state.baseCoffeeGrams * mult).toFixed(2));
+      state.currentCoffeeGrams = state.baseCoffeeGrams * mult;
       document.getElementById("coffeeDoseInput").value = state.currentCoffeeGrams;
+      setDoseValidity(state.currentCoffeeGrams >= 0.01 && state.currentCoffeeGrams <= 1000);
+      if (state.currentCoffeeGrams < 0.01 || state.currentCoffeeGrams > 1000) return;
       document.querySelectorAll(".mult-btn").forEach((b) => setPressed(b, b === btn));
       renderCalculation();
     });

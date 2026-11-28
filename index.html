@@ -99,9 +99,10 @@
             <div class="dose-control">
               <input
                 id="coffeeDoseInput"
+                aria-describedby="doseError"
                 type="number"
-                step="0.1"
-                min="0.5"
+                step="any"
+                min="0.01"
                 max="1000"
                 value="4.4"
                 inputmode="decimal"
@@ -122,6 +123,8 @@
           </div>
         </div>
 
+        <p id="doseError" class="dose-error hidden" role="status">Masukkan takaran kopi antara 0,01 dan 1.000 g.</p>
+        <div id="calculationResults">
         <!-- Ingredients Output Table -->
         <div class="table-wrap">
           <table class="ing-table">
@@ -152,6 +155,9 @@
             <span class="telemetry-label">Proporsi Bahan Pemanis</span>
             <strong id="sweetnessDisplay" class="telemetry-val">0%</strong>
           </div>
+        </div>
+
+        <p class="rounding-note">Takaran dibulatkan hingga 3 desimal. Total dihitung sebelum pembulatan.</p>
         </div>
 
         <!-- Share & Export Actions -->
@@ -204,7 +210,8 @@
         <!-- Brew Steps Checklist -->
         <section class="panel steps-panel">
           <h3 class="section-heading">Langkah Seduh</h3>
-          <p class="meta-text">Angka dalam langkah mengikuti resep asli. Gunakan tabel untuk takaran yang sudah disesuaikan.</p>
+          <p id="stepsScaleNotice" class="meta-text">Angka dalam langkah mengikuti resep asli.</p>
+          <div id="stepsScaledAmounts" class="steps-scaled hidden" aria-label="Takaran yang disesuaikan"></div>
           <ol id="stepsList" class="steps-list"></ol>
         </section>
       </aside>
