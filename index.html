@@ -28,6 +28,7 @@
       </a>
 
       <div class="topbar-actions">
+        <button id="backToCatalog" class="btn btn-ghost back-catalog" type="button">← Daftar resep</button>
         <button id="themeToggle" class="btn btn-ghost" type="button" title="Ganti tema">
           <span id="themeLabel">Mode gelap</span>
         </button>
@@ -50,15 +51,9 @@
 
     <!-- Category Filter & Recipe Selector -->
     <section id="katalog" class="selector-panel" aria-labelledby="catalogTitle">
-      <div class="catalog-intro">
-        <div>
-          <h1 id="catalogTitle">Katalog seduh<span>.</span></h1>
-          <p>Pilih resep, sesuaikan takaran, lalu ikuti langkah seduhnya.</p>
-        </div>
-        <div class="cup-print" aria-hidden="true">
-          <i class="steam"></i><i class="cup-handle"></i><i class="cup-bowl"></i><i class="saucer"></i>
-        </div>
-      </div>
+      <div class="catalog-heading"><h1 id="catalogTitle" tabindex="-1">Daftar resep</h1><p id="recipeCount" class="catalog-count" role="status"></p></div>
+      <label class="catalog-search" for="recipeSearch">Cari resep</label>
+      <input id="recipeSearch" type="search" placeholder="Misal: V60" />
       <div class="catalog-filters">
         <div class="filter-bar" role="group" aria-labelledby="categoryLabel">
           <span id="categoryLabel" class="filter-label">Kategori</span>
@@ -68,7 +63,6 @@
           <button class="chip" data-category="experimental" type="button">Eksperimen</button>
           <button class="chip" data-category="local" type="button">Resep Saya</button>
         </div>
-        <p id="recipeCount" class="catalog-count" role="status"></p>
       </div>
       <div id="recipeGrid" class="recipe-grid"></div>
     </section>
@@ -86,6 +80,7 @@
             </div>
             <h2 tabindex="-1" id="activeTitle" class="recipe-title">Memuat resep...</h2>
             <p id="activeDesc" class="recipe-desc"></p>
+            <p id="recipeStatus" class="recipe-status"></p>
             <details class="recipe-provenance">
               <summary>Asal-usul dan referensi</summary>
               <p><strong id="recipeKind"></strong> · <span id="recipeVerification"></span></p>
@@ -186,12 +181,19 @@
 
           <div role="timer" aria-label="Waktu seduh" class="timer-display" id="timerDisplay">00:00</div>
 
-          <div class="timer-presets">
-            <button type="button" class="preset-chip" data-seconds="30">30s Bloom</button>
-            <button type="button" class="preset-chip" data-seconds="45">45s Larut</button>
-            <button type="button" class="preset-chip" data-seconds="150">2:30 V60</button>
-            <button type="button" class="preset-chip" data-seconds="0">Stopwatch</button>
+          <div class="timer-presets" role="group" aria-label="Mode timer">
+            <button type="button" class="preset-chip" data-mode="stopwatch">Stopwatch</button>
+            <button type="button" class="preset-chip" data-mode="countdown">Hitung mundur</button>
           </div>
+          <div id="countdownSettings" class="countdown-settings hidden">
+            <label>Menit <input id="timerMinutes" type="number" min="0" max="999" value="2" inputmode="numeric" /></label>
+            <label>Detik <input id="timerSecs" type="number" min="0" max="59" value="30" inputmode="numeric" /></label>
+          </div>
+          <div id="soundControls" class="sound-controls hidden">
+            <label><input id="timerSound" type="checkbox" checked /> Suara saat selesai</label>
+            <button id="testSound" class="btn btn-outline btn-sm" type="button">Coba suara</button>
+          </div>
+          <p id="timerStatus" class="timer-status" role="status" aria-live="polite"></p>
 
           <div class="timer-controls">
             <button id="timerStartBtn" class="btn btn-primary" type="button">Mulai</button>
@@ -233,7 +235,7 @@
   <dialog id="experimentModal" class="modal" aria-labelledby="builderTitle">
     <form id="experimentForm" class="modal-card" method="dialog">
       <div class="modal-header">
-        <h2 id="builderTitle">Resep eksperimen baru</h2>
+        <div><h2 id="builderTitle">Resep baru</h2><p class="modal-subtitle">Tersimpan di browser ini.</p></div>
         <button id="closeModalBtn" class="btn btn-ghost btn-sm" type="button" aria-label="Tutup">×</button>
       </div>
 

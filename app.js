@@ -17,7 +17,10 @@ const state = {
   timerInterval: null,
   timerSeconds: 0,
   timerMode: "stopwatch",
-  timerRunning: false
+  timerRunning: false,
+  timerDeadline: null,
+  timerStartedAt: null,
+  audioContext: null
 };
 
 const FALLBACK_RECIPES = [
@@ -134,6 +137,7 @@ async function loadAllRecipes() {
       document.getElementById("sharedBanner").classList.remove("hidden");
       selectRecipe(shared);
       renderRecipeGrid();
+      showRecipe();
       return;
     }
   }
@@ -155,7 +159,9 @@ function renderRecipeGrid() {
   const grid = document.getElementById("recipeGrid");
   grid.innerHTML = "";
 
+  const query = document.getElementById("recipeSearch").value.trim().toLocaleLowerCase("id");
   const filtered = state.recipes.filter((r) => {
+    if (!r.name.toLocaleLowerCase("id").includes(query)) return false;
     if (state.activeCategory === "all") return true;
     if (state.activeCategory === "local") return Boolean(r.isLocal);
     return r.category === state.activeCategory;
@@ -185,11 +191,17 @@ function renderRecipeGrid() {
     card.addEventListener("click", () => {
       selectRecipe(recipe);
       renderRecipeGrid();
-      document.getElementById("activeTitle").focus({ preventScroll: true });
-      document.getElementById("kalkulator").scrollIntoView({ block: "start" });
+      showRecipe();
     });
     grid.appendChild(card);
   });
+}
+
+function showRecipe() {
+  document.body.dataset.view = "detail";
+  const title = document.getElementById("activeTitle");
+  title.focus({ preventScroll: true });
+  if (window.matchMedia("(max-width: 760px)").matches) document.getElementById("kalkulator").scrollIntoView({ block: "start" });
 }
 
 function selectRecipe(recipe) {
@@ -207,6 +219,11 @@ function selectRecipe(recipe) {
   document.getElementById("activeTitle").textContent = recipe.name;
   document.getElementById("activeDesc").textContent = recipe.description || "";
   renderProvenance(recipe);
+  const p = recipe.provenance;
+  const kind = { experiment: "Eksperimen", template: "Resep contoh", original: "Resep orisinal", adaptation: "Adaptasi" }[p?.kind] || "Asal resep belum dicatat";
+  const verification = p?.verification === "tested" ? "sudah diuji" : "pengujian belum dicatat";
+  document.getElementById("recipeStatus").textContent = recipe.isLocal
+    ? "Resep pribadi · disimpan di browser ini" : `${kind} · ${verification}`;
 
   const doseInput = document.getElementById("coffeeDoseInput");
   doseInput.value = state.currentCoffeeGrams;
@@ -332,43 +349,86 @@ function updateTimerDisplay() {
     `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
 }
 
+function prepareAudio() {
+  try {
+    const Audio = window.AudioContext || window.webkitAudioContext;
+    if (!Audio) return null;
+    state.audioContext ||= new Audio();
+    if (state.audioContext.state === "suspended") state.audioContext.resume().catch(() => {});
+    return state.audioContext;
+  } catch { return null; }
+}
+
+function playTimerSound() {
+  const context = prepareAudio();
+  if (!context) { showToast("Suara tidak didukung browser ini"); return; }
+  try {
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+    const start = context.currentTime;
+    oscillator.frequency.value = 740;
+    gain.gain.setValueAtTime(0.0001, start);
+    gain.gain.exponentialRampToValueAtTime(0.18, start + 0.03);
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.45);
+    oscillator.connect(gain).connect(context.destination);
+    oscillator.start(start);
+    oscillator.stop(start + 0.46);
+  } catch { showToast("Suara tidak dapat diputar"); }
+}
+
+function tickTimer() {
+  if (!state.timerRunning) return;
+  const now = Date.now();
+  state.timerSeconds = state.timerMode === "countdown"
+    ? Math.max(0, Math.ceil((state.timerDeadline - now) / 1000))
+    : Math.floor((now - state.timerStartedAt) / 1000);
+  updateTimerDisplay();
+  if (state.timerMode === "countdown" && state.timerSeconds === 0) {
+    clearInterval(state.timerInterval);
+    state.timerRunning = false;
+    document.getElementById("timerStartBtn").textContent = "Mulai";
+    document.getElementById("timerStatus").textContent = "Waktu selesai";
+    if (document.getElementById("timerSound").checked) playTimerSound();
+  }
+}
+
 function toggleTimer() {
   const btn = document.getElementById("timerStartBtn");
   if (state.timerRunning) {
+    tickTimer();
+    if (!state.timerRunning) return;
     clearInterval(state.timerInterval);
     state.timerRunning = false;
     btn.textContent = "Lanjut";
     return;
   }
-
+  if (state.timerMode === "countdown" && state.timerSeconds <= 0) {
+    showToast("Atur waktu hitung mundur terlebih dahulu");
+    return;
+  }
+  if (state.timerMode === "countdown" && document.getElementById("timerSound").checked) prepareAudio();
+  document.getElementById("timerStatus").textContent = "";
   state.timerRunning = true;
+  const now = Date.now();
+  state.timerDeadline = now + state.timerSeconds * 1000;
+  state.timerStartedAt = now - state.timerSeconds * 1000;
   btn.textContent = "Jeda";
-  state.timerInterval = setInterval(() => {
-    if (state.timerMode === "countdown") {
-      if (state.timerSeconds > 0) {
-        state.timerSeconds--;
-        updateTimerDisplay();
-      }
-      if (state.timerSeconds === 0) {
-        clearInterval(state.timerInterval);
-        state.timerRunning = false;
-        btn.textContent = "Mulai";
-        showToast("Timer selesai!");
-      }
-    } else {
-      state.timerSeconds++;
-      updateTimerDisplay();
-    }
-  }, 1000);
+  state.timerInterval = setInterval(tickTimer, 250);
+}
+
+function countdownDuration() {
+  const minutes = Number(document.getElementById("timerMinutes").value);
+  const seconds = Number(document.getElementById("timerSecs").value);
+  if (!Number.isInteger(minutes) || !Number.isInteger(seconds) || minutes < 0 || minutes > 999 || seconds < 0 || seconds > 59) return null;
+  return minutes * 60 + seconds;
 }
 
 function resetTimer() {
   clearInterval(state.timerInterval);
   state.timerRunning = false;
-  state.timerMode = "stopwatch";
-  document.querySelectorAll(".preset-chip").forEach((p) => setPressed(p, p.dataset.seconds === "0"));
-  state.timerSeconds = 0;
+  state.timerSeconds = state.timerMode === "countdown" ? (countdownDuration() || 0) : 0;
   document.getElementById("timerStartBtn").textContent = "Mulai";
+  document.getElementById("timerStatus").textContent = "";
   updateTimerDisplay();
 }
 
@@ -495,6 +555,7 @@ function initModal() {
     selectRecipe(newRecipe);
     renderRecipeGrid();
     modal.close();
+    showRecipe();
     e.target.reset();
     showToast("Resep eksperimen tersimpan!");
   });
@@ -543,7 +604,17 @@ function initTheme() {
 document.addEventListener("DOMContentLoaded", () => {
   initTheme();
   initModal();
+  document.body.dataset.view = "catalog";
   loadAllRecipes();
+
+  document.querySelector(".skip-link").addEventListener("click", () => { document.body.dataset.view = "detail"; });
+  document.getElementById("recipeSearch").addEventListener("input", renderRecipeGrid);
+  document.getElementById("backToCatalog").addEventListener("click", () => {
+    document.body.dataset.view = "catalog";
+    const selected = document.querySelector(".recipe-card.active") || document.getElementById("catalogTitle");
+    selected.focus({ preventScroll: true });
+    selected.scrollIntoView({ block: "nearest" });
+  });
 
   document.querySelectorAll(".chip").forEach((chip) => {
     chip.addEventListener("click", () => {
@@ -618,21 +689,18 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("wakeLockBtn").addEventListener("click", toggleWakeLock);
 
   document.querySelectorAll(".preset-chip").forEach((preset) => {
-    setPressed(preset, preset.dataset.seconds === "0");
+    setPressed(preset, preset.dataset.mode === "stopwatch");
     preset.addEventListener("click", () => {
       document.querySelectorAll(".preset-chip").forEach((p) => setPressed(p, p === preset));
-      clearInterval(state.timerInterval);
-      state.timerRunning = false;
-      document.getElementById("timerStartBtn").textContent = "Mulai";
-      const secs = Number(preset.dataset.seconds);
-      if (secs > 0) {
-        state.timerMode = "countdown";
-        state.timerSeconds = secs;
-      } else {
-        state.timerMode = "stopwatch";
-        state.timerSeconds = 0;
-      }
-      updateTimerDisplay();
+      state.timerMode = preset.dataset.mode;
+      document.getElementById("countdownSettings").classList.toggle("hidden", state.timerMode !== "countdown");
+      document.getElementById("soundControls").classList.toggle("hidden", state.timerMode !== "countdown");
+      resetTimer();
     });
   });
+  ["timerMinutes", "timerSecs"].forEach((id) => document.getElementById(id).addEventListener("input", () => {
+    if (state.timerMode === "countdown") resetTimer();
+  }));
+  document.getElementById("testSound").addEventListener("click", playTimerSound);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) tickTimer(); });
 });
